@@ -1,0 +1,57 @@
+# =============================================================================
+# SCORING CONFIG  —  THIS IS THE ONE FILE YOU EDIT WHEN LEAGUE RULES CHANGE.
+# =============================================================================
+# Default is standard PPR. Change any number below and the entire pipeline
+# (historical points, projections, optimizer) recomputes automatically.
+#
+# QUICK PRESETS — just change `receptions.points`:
+#     Full PPR : 1.0   (this file's default)
+#     Half PPR : 0.5
+#     Standard : 0.0
+#
+# Each rule maps a human name to:
+#     stat   : a column in the nflreadpy player-stats table, OR a list of
+#              columns that get SUMMED before scoring (e.g. fumbles lost).
+#     points : points awarded per 1 unit of that stat.
+#
+# You can add/remove rules freely. Unknown columns are ignored with a warning,
+# so a typo won't silently corrupt scores.
+# -----------------------------------------------------------------------------
+
+name: "Full PPR (default)"
+
+rules:
+  # ---- Passing ----
+  passing_yards:        { stat: passing_yards,          points: 0.04 }   # 1 pt / 25 yds
+  passing_td:           { stat: passing_tds,            points: 4.0  }
+  interception:         { stat: passing_interceptions,  points: -2.0 }   # some leagues -1
+  passing_2pt:          { stat: passing_2pt_conversions,points: 2.0  }
+
+  # ---- Rushing ----
+  rushing_yards:        { stat: rushing_yards,          points: 0.1  }   # 1 pt / 10 yds
+  rushing_td:           { stat: rushing_tds,            points: 6.0  }
+  rushing_2pt:          { stat: rushing_2pt_conversions,points: 2.0  }
+
+  # ---- Receiving ----
+  receptions:           { stat: receptions,             points: 1.0  }   # <-- PPR KNOB
+  receiving_yards:      { stat: receiving_yards,        points: 0.1  }
+  receiving_td:         { stat: receiving_tds,          points: 6.0  }
+  receiving_2pt:        { stat: receiving_2pt_conversions, points: 2.0 }
+
+  # ---- Miscellaneous ----
+  fumble_lost:
+    stat: [sack_fumbles_lost, rushing_fumbles_lost, receiving_fumbles_lost]
+    points: -2.0
+  return_td:
+    stat: [special_teams_tds, fumble_recovery_tds]
+    points: 6.0
+
+# -----------------------------------------------------------------------------
+# BONUSES (optional) — threshold rewards some leagues use. Empty by default.
+# Each bonus fires once per game if the stat meets/exceeds the threshold.
+# -----------------------------------------------------------------------------
+bonuses: []
+  # Example (uncomment to use):
+  # - { stat: passing_yards,   threshold: 300, points: 3.0 }
+  # - { stat: rushing_yards,   threshold: 100, points: 3.0 }
+  # - { stat: receiving_yards, threshold: 100, points: 3.0 }
